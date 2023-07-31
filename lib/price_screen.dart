@@ -1,8 +1,11 @@
 // import 'package:coin_tracker/models/coin_model.dart';
+import 'package:coin_tracker_projec/utilities/coin_data.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import 'models/coin_model.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -17,6 +20,50 @@ class _PriceScreenState extends State<PriceScreen> {
     CoinModel(icon: 'eth', name: 'Ethereum', price: 1200),
     CoinModel(icon: 'ltc', name: 'Litecoin', price: 62.5),
   ];
+
+  CupertinoPicker getCupertinoPicker(){
+    List<Text> pickerItems = [];
+    for (String currency in currenciesList) {
+      pickerItems.add(Text(currency));
+    }
+    return CupertinoPicker(
+      itemExtent: 32,
+      onSelectedItemChanged: (selectedIndex) {
+        print(selectedIndex);
+      },
+      children: pickerItems,
+    );
+  }
+
+  InputDecorator getDropdownButton() {
+    List<DropdownMenuItem<String>> dropdownItems = [];
+    for (String currency in currenciesList) {
+      var newItem = DropdownMenuItem(
+        child: Text(currency),
+        value: currency,
+      );
+      dropdownItems.add(newItem);
+    }
+    return InputDecorator(
+      decoration: const InputDecoration(
+          enabledBorder:
+              OutlineInputBorder(borderSide: BorderSide(color: Colors.white24)),
+          contentPadding: EdgeInsets.symmetric(horizontal: 16)),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          isExpanded: true,
+          value: selectedCurrency,
+          items: dropdownItems,
+          onChanged: (value) {
+            setState(() {
+              selectedCurrency = value!;
+            });
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,19 +133,9 @@ class _PriceScreenState extends State<PriceScreen> {
               ),
             ),
             Container(
-              color: Colors.grey,
-              height: 150,
-              child: DropdownButton<String>(
-                value: selectedCurrency,
-                items: [
-                  DropdownMenuItem(child: Text('USD'), value: 'USD',),
-                  DropdownMenuItem(child: Text('EUR'), value: 'EUR',),
-                  DropdownMenuItem(child: Text('GBP'), value: 'GBP',),
-                ], onChanged: (value){
-                  setState(() {
-                    selectedCurrency = value!;
-                  });
-              },),
+              padding: EdgeInsets.symmetric(horizontal: Platform.isIOS ? 0 : 16),
+                height: Platform.isIOS ? 150 : 60,
+                child: Platform.isIOS ? getCupertinoPicker() : getDropdownButton(),
             ),
           ],
         ),
